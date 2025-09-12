@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from .database import Base
-import datetime
+from datetime import datetime
 
 class Word(Base):
     __tablename__ = "words"
@@ -10,4 +10,4 @@ class Word(Base):
     translation = Column(String)
     example = Column(String, nullable=True)
     level = Column(Integer, default = 0)
-    next_review = Column(DateTime, default=datetime.datetime.utcnow)
+    next_review = Column(DateTime, default=datetime.utcnow)
