@@ -1,12 +1,15 @@
 from sqlalchemy.orm import Session
-from . import models, schemas
 from fastapi import HTTPException
+from .logging_config import logger
+from . import models, schemas
+
 
 def create_word(db: Session, word: schemas.WordCreate):
     db_word = models.Word(**word.dict())
     db.add(db_word)
     db.commit()
     db.refresh(db_word)
+    logger.info(f"Добавлено слово: {db_word.japanese} (id={db_word.id})")
     return db_word
 
 def get_words(db: Session, skip: int = 0, limit: int = 10):
@@ -22,6 +25,7 @@ def get_word(db: Session, word_id: int):
 def update_word(db: Session, word_id: int, word_update: schemas.WordUpdate):
     word = db.query(models.Word).filter(models.Word.id == word_id).first()
     if not word:
+        logger.error(f"Попытка обновить несуществующее слово (id={word.id})")
         raise HTTPException(status_code=404, detail="Word not found")
     
     for key, value in word_update.dict(exclude_unset=True).items():
@@ -29,13 +33,16 @@ def update_word(db: Session, word_id: int, word_update: schemas.WordUpdate):
     
     db.commit()
     db.refresh(word)
+    logger.info(f"Обновлено слово: {word.japanese} (id={word.id})")
     return word
 
 def delete_word(db: Session, word_id: int):
     word = db.query(models.Word).filter(models.Word.id == word_id).first()
     if not word:
+        logger.error(f"Попытка удалить несуществующее слово (id={word.id})")
         raise HTTPException(status_code=404, detail="Word not found")
     
     db.delete(word)
     db.commit()
+    logger.info(f"Удалено слово: {word.japanese} (id={word.id})")
     return {"detail": "Word deleted"}
