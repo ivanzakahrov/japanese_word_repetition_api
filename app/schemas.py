@@ -1,19 +1,18 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 class WordBase(BaseModel):
-    japanese: str
-    translation: str
-    example: Optional[str] = None
+    japanese: str = Field(..., min_length=1, max_length=20, description="Слово на японском")
+    translation: str = Field(..., min_length=1, max_length=50, description="Перевод на русский")
+    example: str | None = Field(None, max_length=200, description="Пример использования")
 
 class WordCreate(WordBase):
     pass
 
 class WordUpdate(BaseModel):
-    japanese: Optional[str] = None
-    translation: Optional[str] = None
-    example: Optional[str] = None
+    japanese: str | None = Field(None, min_length=1, max_length=20)
+    translation: str | None = Field(None, min_length=1, max_length=50)
+    example: str | None = Field(None, max_length=200)
 
 class WordResponse(WordBase):
     id: int
