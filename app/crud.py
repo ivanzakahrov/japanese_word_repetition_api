@@ -25,7 +25,7 @@ def get_word(db: Session, word_id: int):
 def update_word(db: Session, word_id: int, word_update: schemas.WordUpdate):
     word = db.query(models.Word).filter(models.Word.id == word_id).first()
     if not word:
-        logger.error(f"Попытка обновить несуществующее слово (id={word.id})")
+        logger.error(f"Попытка обновить несуществующее слово (id={word_id})")
         raise HTTPException(status_code=404, detail="Word not found")
     
     for key, value in word_update.dict(exclude_unset=True).items():
@@ -39,7 +39,7 @@ def update_word(db: Session, word_id: int, word_update: schemas.WordUpdate):
 def delete_word(db: Session, word_id: int):
     word = db.query(models.Word).filter(models.Word.id == word_id).first()
     if not word:
-        logger.error(f"Попытка удалить несуществующее слово (id={word.id})")
+        logger.error(f"Попытка удалить несуществующее слово (id={word_id})")
         raise HTTPException(status_code=404, detail="Word not found")
     
     db.delete(word)
