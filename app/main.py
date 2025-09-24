@@ -4,12 +4,14 @@ from fastapi.exceptions import RequestValidationError
 from . import models
 from .database import engine
 from .routers import words
+from .routers import review
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title = "Japanese Word Repetition API", version = "0.1")
 
 app.include_router(words.router)
+app.include_router(review.router)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):

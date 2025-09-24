@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from .logging_config import logger
 from . import models, schemas
 from .utils import calculate_next_review
+from datetime import datetime
 
 
 def create_word(db: Session, word: schemas.WordCreate):
@@ -58,5 +59,10 @@ def review_word(db: Session, word_id: int):
     word.next_review = calculate_next_review(word.level)
 
     db.commit()
-    db.refresh()
+    db.refresh(word)
     return word
+
+def get_words_for_review(db: Session):
+    today = datetime.now()
+    words = db.query(models.Word).filter(models.Word.next_review < today).all()
+    return words

@@ -20,4 +20,4 @@ class WordResponse(WordBase):
     next_review: datetime
 
     class Config:
-        orm_model = True
+        orm_mode = True

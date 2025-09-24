@@ -26,5 +26,5 @@ def update_word_endpoint(word_id: int, word_update: schemas.WordUpdate, db: Sess
     return crud.update_word(db, word_id, word_update)
 
 @router.delete("/{word_id}")
-def delete_word(word_id: int, db: Session = Depends(get_db)):
+def delete_word_endpoint(word_id: int, db: Session = Depends(get_db)):
     return crud.delete_word(db, word_id)
