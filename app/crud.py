@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from .logging_config import logger
 from . import models, schemas
+from .utils import calculate_next_review
 
 
 def create_word(db: Session, word: schemas.WordCreate):
@@ -46,3 +47,16 @@ def delete_word(db: Session, word_id: int):
     db.commit()
     logger.info(f"Удалено слово: {word.japanese} (id={word.id})")
     return {"detail": "Word deleted"}
+
+def review_word(db: Session, word_id: int):
+    word = db.query(models.Word).filter(models.Word.id == word_id).first()
+    if not word:
+        raise HTTPException(status_code=404, detail="Word not found")
+    
+    if word.level < 5:
+        word.level += 1
+    word.next_review = calculate_next_review(word.level)
+
+    db.commit()
+    db.refresh()
+    return word
