@@ -20,4 +20,9 @@ class WordResponse(WordBase):
     next_review: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+class StatsResponse(BaseModel):
+    total_words: int
+    to_review: int
+    learned: int 

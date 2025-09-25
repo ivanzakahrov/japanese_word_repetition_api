@@ -4,6 +4,7 @@ from .logging_config import logger
 from . import models, schemas
 from .utils import calculate_next_review
 from datetime import datetime
+from sqlalchemy import or_
 
 
 def create_word(db: Session, word: schemas.WordCreate):
@@ -68,3 +69,25 @@ def get_words_for_review(db: Session):
     today = datetime.now()
     words = db.query(models.Word).filter(models.Word.next_review < today).all()
     return words
+
+def get_stats(db: Session) -> dict:
+    total_words = db.query(models.Word).count()
+
+    to_review = (
+        db.query(models.Word)
+        .filter(
+            or_(
+                models.Word.next_review == None,
+                models.Word.next_review <= datetime.now()
+            )
+        )
+        .count()
+    )
+
+    learned = (
+        db.query(models.Word)
+        .filter(models.Word.level >= 5)
+        .count()
+    )
+
+    return {"total_words": total_words, "to_review": to_review, "learned": learned}
