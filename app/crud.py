@@ -54,8 +54,10 @@ def review_word(db: Session, word_id: int):
     if not word:
         raise HTTPException(status_code=404, detail="Word not found")
     
-    if word.level < 5:
-        word.level += 1
+    if word.next_review > datetime.now():
+        raise HTTPException(status_code=400, detail = f"Следующий повтор слова наступит {word.next_review}")
+    
+    word.level += 1
     word.next_review = calculate_next_review(word.level)
 
     db.commit()
