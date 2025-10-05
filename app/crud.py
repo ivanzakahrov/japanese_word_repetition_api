@@ -3,9 +3,11 @@ from fastapi import HTTPException
 from .logging_config import logger
 from . import models, schemas
 from .utils import calculate_next_review
+from .utils import safe_csv
 from datetime import datetime
 from sqlalchemy import or_
-
+import io
+import csv
 
 def create_word(db: Session, word: schemas.WordCreate):
     db_word = models.Word(**word.dict())
@@ -91,3 +93,40 @@ def get_stats(db: Session) -> dict:
     )
 
     return {"total_words": total_words, "to_review": to_review, "learned": learned}
+
+def word_to_dict(word):
+    return {
+        "id": word.id,
+        "japanese": word.japanese,
+        "translation": word.translation,
+        "example": word.example,
+        "level": word.level,
+        "next_review": word.next_review.isoformat() if word.next_review else None
+    }
+
+def export_all_json(db: Session):
+    words = db.query(models.Word).all()
+    return [word_to_dict(word) for word in words]
+
+def export_words_csv(db:Session):
+    header = ["id", "japanese", "translation", "example", "level", "next_review"]
+    buffer = io.StringIO()
+    writer = csv.writer(buffer, delimiter=';')
+
+    writer.writerow(header)
+    chunk = buffer.getvalue()
+    yield "\ufeff" + chunk
+    buffer.seek(0); buffer.truncate(0)
+
+    for word in db.query(models.Word).yield_per(100):
+        row = [
+            safe_csv(word.id),
+            safe_csv(word.japanese),
+            safe_csv(word.translation),
+            safe_csv(word.example),
+            safe_csv(word.level),
+            safe_csv(word.next_review.isoformat() if word.next_review else "")
+        ]
+        writer.writerow(row)
+        yield buffer.getvalue()
+        buffer.seek(0); buffer.truncate(0)
