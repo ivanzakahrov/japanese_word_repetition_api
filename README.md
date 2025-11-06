@@ -20,14 +20,24 @@ Japanese Word Repetition API
 Основные эндпоинты:
 
 Метод	Эндпоинт	Описание
+
 POST	/words	Добавить новое слово
+
 GET	/words	Получить список слов
+
 GET	/words/{id}	Получить слово по ID
+
 PUT	/words/{id}	Обновить слово
+
 DELETE	/words/{id}	Удалить слово
+
 POST	/words/{id}/review	Отметить слово как повторённое
+
 GET	/stats	Получить статистику
+
 GET	/export/json	Экспорт всех слов в JSON
+
 GET	/export/csv	Экспорт всех слов в CSV
+
 
 
